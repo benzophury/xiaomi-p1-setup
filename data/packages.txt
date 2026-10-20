@@ -44,3 +44,7 @@ fusion.android.tv.demo                         # Demo mode app (retail store dem
 com.crunchyroll.crunchyroid                    # Crunchyroll (anime streaming)
 com.sonypicturescore                           # Sony Pictures Core (bundled content)
 com.google.android.videos                      # Google TV app / Movies & TV
+com.google.android.youtube.tv                  # YouTube for Android TV
+com.google.android.youtube.tvmusic             # YouTube Music
+com.netflix.ninja                              # Netflix
+com.amazon.amazonvideo.livingroom              # Amazon Prime Video

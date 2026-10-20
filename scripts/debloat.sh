@@ -136,7 +136,7 @@ while IFS= read -r _raw; do
     if [[ "$DRY_RUN" == "1" ]]; then
         log_warn "  [dry-run] pm disable-user --user 0 ${_pkg}"
     else
-        _result="$(adb -s "${TV_IP}:${TV_PORT}" shell pm disable-user --user 0 "$_pkg" 2>&1 || true)"
+        _result="$(adb -s "${TV_IP}:${TV_PORT}" shell pm disable-user --user 0 "$_pkg" < /dev/null 2>&1 || true)"
         if printf '%s' "$_result" | grep -qi "disabled\|success"; then
             log_ok "  disabled                       : ${_pkg}"
         else

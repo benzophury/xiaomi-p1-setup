@@ -64,7 +64,7 @@ adb_cmd() {
         log_warn "[dry-run] adb -s ${TV_IP}:${TV_PORT} shell $*"
         return 0
     fi
-    adb -s "${TV_IP}:${TV_PORT}" shell "$@"
+    adb -s "${TV_IP}:${TV_PORT}" shell "$@" < /dev/null
 }
 
 # ─── tv_py ────────────────────────────────────────────────────────────────────
@@ -82,7 +82,8 @@ tv_py() {
 # Usage: is_package_installed com.example.pkg
 is_package_installed() {
     local pkg="$1"
-    adb -s "${TV_IP}:${TV_PORT}" shell pm list packages 2>/dev/null \
+    adb -s "${TV_IP}:${TV_PORT}" shell pm list packages < /dev/null 2>/dev/null \
+        | tr -d '\r' \
         | grep -q "^package:${pkg}$"
 }
 
