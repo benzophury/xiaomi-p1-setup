@@ -44,8 +44,8 @@ for _a in "$@"; do
 done
 
 _PROJECTIVY_PKG="com.spocky.projengmenu"
-_PROJECTIVY_ACTIVITY="${_PROJECTIVY_PKG}/.ui.home.HomeActivity"
-_REMOTE_APK="/sdcard/projectivy.apk"
+_PROJECTIVY_ACTIVITY="${_PROJECTIVY_PKG}/.ui.home.MainActivity"
+_REMOTE_APK="/data/local/tmp/projectivy.apk"
 
 # ─── Step 1: Config & checks ─────────────────────────────────────────────────
 step "1/9  Loading configuration"
@@ -116,14 +116,18 @@ if [[ "${_already_installed}" == "0" ]]; then
     if [[ "$DRY_RUN" == "1" ]]; then
         log_warn "[dry-run] pm install -r ${_REMOTE_APK}"
     else
-        _install_out="$(adb -s "${TV_IP}:${TV_PORT}" shell pm install -r "${_REMOTE_APK}" 2>&1)"
+        # Try direct streamed adb install first, then fall back to pm install from remote temp
+        _install_out="$(adb -s "${TV_IP}:${TV_PORT}" install -r "${PROJECTIVY_APK}" 2>&1 || true)"
+        if ! printf '%s' "$_install_out" | grep -qi "success"; then
+            _install_out="$(adb -s "${TV_IP}:${TV_PORT}" shell pm install -r "${_REMOTE_APK}" 2>&1 || true)"
+        fi
         if printf '%s' "$_install_out" | grep -qi "success"; then
             log_ok "Projectivy installed: ${_install_out}"
         else
             die "pm install failed: ${_install_out}"
         fi
         # Clean up remote APK
-        adb -s "${TV_IP}:${TV_PORT}" shell rm -f "${_REMOTE_APK}" 2>/dev/null || true
+        adb -s "${TV_IP}:${TV_PORT}" shell rm -f "${_REMOTE_APK}" /sdcard/projectivy.apk 2>/dev/null || true
     fi
 else
     log_info "Skipping install (not reinstalling)"
