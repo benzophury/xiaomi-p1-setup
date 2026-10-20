@@ -4,3 +4,6 @@ __pycache__/
 *.apk
 .DS_Store
 *.bak
+tools/venv/
+venv/
+.venv/
