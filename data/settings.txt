@@ -1,0 +1,32 @@
+# Settings applied by debloat.sh via `adb shell settings put`.
+# Format: <namespace> <key> <value>  # optional comment
+# Lines starting with # are comments. Blank lines are ignored.
+#
+# ANIMATION_SCALE lines use the literal token ANIMATION_SCALE — debloat.sh
+# substitutes the value from setup.conf before sending each command to the TV.
+# All other values are sent as-is.
+
+# ─── Ad tracking ──────────────────────────────────────────────────────────────
+secure limit_ad_tracking 1                     # opt out of interest-based ads (Google)
+secure non_amz_limit_ad_tracking 1             # opt out of non-Amazon ad tracking
+
+# ─── UI Animation Speed ───────────────────────────────────────────────────────
+# The ANIMATION_SCALE token is replaced at runtime with the value from setup.conf.
+global window_animation_scale ANIMATION_SCALE
+global transition_animation_scale ANIMATION_SCALE
+# animator_duration_scale is intentionally left at 1.0.
+# Setting it to 0.5 causes Settings navigation to skip screens on Xiaomi firmware.
+
+# ─── Notification privacy ─────────────────────────────────────────────────────
+global heads_up_notifications_enabled 0        # disable pop-up heads-up notifications
+
+# ─── Private DNS / NextDNS ────────────────────────────────────────────────────
+# These lines are NOT applied from this file. debloat.sh sets Private DNS
+# programmatically using NEXTDNS_ID from setup.conf, so the specifier can be
+# constructed correctly. Shown here for documentation only:
+#
+#   settings put global private_dns_mode hostname
+#   settings put global private_dns_specifier <NEXTDNS_ID>.dns.nextdns.io
+#
+# To reset to system DNS:
+#   settings put global private_dns_mode off

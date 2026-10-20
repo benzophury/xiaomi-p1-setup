@@ -1,0 +1,46 @@
+# Xiaomi P1 32" (Android / Google TV) — package disable list
+# Format: one package name per line. Lines starting with # are comments.
+# Inline trailing comments (# note) are stripped before processing.
+# Run scripts/preflight.sh first to see which of these are actually installed.
+# Packages in KEEP_APPS (setup.conf) are automatically skipped.
+# Packages in data/never-disable.txt are always skipped.
+
+# ════════════════════════════════════════════════════════════════════════════════
+# XIAOMI / PATCHWALL BLOAT
+# ════════════════════════════════════════════════════════════════════════════════
+
+com.miui.tv.analytics                          # Xiaomi analytics / telemetry service
+com.xiaomi.statistic                           # Xiaomi statistics collection
+com.mitv.tvhome.atv                            # PatchWall home launcher (ad-heavy)
+com.mitv.tvhome.michannel                      # Mi Channel — ad rows injected into home screen
+com.mitv.tvhome.mitvplus                       # Mi TV+ streaming ads overlay
+com.xm.webcontent                              # web content / ad overlay renderer
+com.xiaomi.floatingframe                       # floating ad frames on top of UI
+com.xiaomi.mitv.tvmanager                      # Xiaomi TV Manager (phone-home feature)
+com.xiaomi.mitv.smartshare                     # Mi Cast screen-sharing (pulls in Xiaomi cloud)
+com.mitv.milinkservice                         # Mi Link cast service
+com.xiaomi.mitv.updateservice                  # Xiaomi OTA updater (only if DISABLE_OTA=true — enforced in debloat.sh)
+com.xiaomi.amazon.alexa                        # Alexa integration stub
+android.autoinstalls.config.xiaomi.amelie      # Xiaomi auto-install agent (silently pushes apps)
+com.xiaomi.mimusic2                            # Mi Music app
+
+# ════════════════════════════════════════════════════════════════════════════════
+# GOOGLE TV BLOAT
+# ════════════════════════════════════════════════════════════════════════════════
+
+com.google.android.tvrecommendations           # Google TV "For You" recommendation engine
+com.google.android.leanbacklauncher.recommendations  # legacy leanback recommendation service
+com.google.android.apps.tv.dreamx             # Google TV screensaver with ads / promoted content
+com.google.android.feedback                   # Google feedback / crash reporting agent
+com.google.android.play.games                  # Google Play Games (unused on TV)
+com.google.android.apps.tachyon               # Google Duo (video calling stub on TV)
+fusion.android.tv.demo                         # Demo mode app (retail store demo)
+
+# ════════════════════════════════════════════════════════════════════════════════
+# STREAMING APPS — disabled unless listed in KEEP_APPS (setup.conf)
+# debloat.sh checks is_in_keep_list() before disabling any of these.
+# ════════════════════════════════════════════════════════════════════════════════
+
+com.crunchyroll.crunchyroid                    # Crunchyroll (anime streaming)
+com.sonypicturescore                           # Sony Pictures Core (bundled content)
+com.google.android.videos                      # Google TV app / Movies & TV

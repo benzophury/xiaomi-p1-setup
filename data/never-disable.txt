@@ -1,0 +1,46 @@
+# Packages that must NEVER be disabled by this toolkit.
+# debloat.sh checks every candidate against this file before issuing any command.
+# If a package listed in data/packages.txt also appears here, it is silently
+# skipped — the never-disable list always wins.
+#
+# Edit with extreme caution. Disabling the wrong package can render the TV
+# unusable (no network, no settings, no Play Store).
+
+# ─── Launchers / Home screen ──────────────────────────────────────────────────
+# Only disable these AFTER a replacement launcher (e.g. Projectivy) successfully
+# owns the Home intent. launcher.sh handles this automatically.
+com.google.android.tvlauncher              # stock Android TV launcher
+com.google.android.apps.tv.launcherx      # Google TV launcher variant (Tungsten)
+
+# ─── Wi-Fi / Network credentials ─────────────────────────────────────────────
+# CRITICAL: setupwraith owns the Wi-Fi network saved during first-run setup.
+# Disabling it immediately deletes that network and drops the TV off Wi-Fi,
+# taking ADB, the phone remote, and streaming with it.
+# Re-join the network manually in Settings → Network & Internet → Wi-Fi
+# (which transfers ownership to android.uid.system), then it is safe to disable.
+# debloat.sh runs check_setupwraith() automatically and skips it when needed.
+com.google.android.tungsten.setupwraith   # first-run wizard / Wi-Fi credential owner
+
+# ─── Auto-install agent (Google) ─────────────────────────────────────────────
+android.autoinstalls.config.google.gtvpai # Google TV auto-install config
+
+# ─── Core Android system ──────────────────────────────────────────────────────
+com.android.systemui                       # system UI (status bar, notifications)
+com.android.settings                       # Android Settings app
+com.android.packageinstaller              # APK installer
+com.android.permissioncontroller          # permission management
+com.android.bluetooth                     # Bluetooth stack
+com.android.wifi                          # Wi-Fi stack (AOSP builds)
+
+# ─── Google core services ─────────────────────────────────────────────────────
+com.google.android.gsf                    # Google Services Framework
+com.google.android.gms                    # Google Play Services
+com.android.vending                       # Google Play Store
+com.google.android.webview                # Android System WebView
+com.google.android.inputmethod.latin      # Gboard / on-screen keyboard
+com.google.android.wifi                   # Google Wi-Fi service (Google TV builds)
+
+# ─── Xiaomi TV Settings ───────────────────────────────────────────────────────
+# Xiaomi's TV settings app replaces com.android.settings on PatchWall firmware.
+# Disabling it removes access to all TV settings.
+com.xiaomi.mitv.settings                  # Xiaomi TV Settings app
