@@ -10,7 +10,7 @@ disabled, and reset Home and the animation scales to fixed values instead of to 
 before. Both scripts now go through this record: `disable.sh` writes it before the first command
 reaches the TV, and `restore.sh` replays it.
 
-Records live in ~/.cleanyourtv/, one per TV and list. The first one wins: a retry after a
+Records live in ~/.xiaomi-p1-setup/, one per TV and list. The first one wins: a retry after a
 half-applied list must not record the broken state as the original. A later run only adds the names
 the list gained since then, with their state before this list disabled them.
 """
@@ -60,7 +60,7 @@ def record_path(list_path, host):
     same file somewhere else gets its own record."""
     tag = re.sub(r"[^A-Za-z0-9.-]", "_", host or "no-host")
     digest = hashlib.sha1(str(Path(list_path).resolve()).encode()).hexdigest()[:8]
-    return Path.home() / ".cleanyourtv" / f"recovery-{tag}-{digest}.json"
+    return Path.home() / ".xiaomi-p1-setup" / f"recovery-{tag}-{digest}.json"
 
 
 def load_record(path):
