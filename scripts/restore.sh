@@ -15,7 +15,7 @@ for _a in "$@"; do
 Usage: ./scripts/restore.sh
 
 Restores the TV to the state recorded immediately before scripts/debloat.sh
-ran. Uses the recovery snapshot in ~/.cleanyourtv/ to:
+ran. Uses the recovery snapshot in ~/.xiaomi-p1-setup/ to:
 
   • Re-enable only packages that were enabled before the run
   • Leave packages that were already disabled before (they were not our change)

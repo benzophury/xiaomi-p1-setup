@@ -133,6 +133,11 @@ xiaomi-p1-setup/
     ├── tv.py               ← ADB-over-TCP client (adb_shell, no binary needed)
     ├── recovery.py         ← pre-run snapshot + restore batch generator
     ├── b64push.py          ← reliable file transfer via base64 chunks
+    ├── check.py            ← firmware drift detection: what a Xiaomi OTA undid
+    ├── privacy.py          ← audit the TV for voice/ACR/telemetry candidates
+    ├── adb-closed.py       ← verify ADB port is closed after turning off debugging
+    ├── relay.py            ← forward ADB to a sandbox that can't reach your network
+    ├── relay.md            ← relay usage guide
     ├── requirements.txt    ← Python deps (adb-shell, rsa, cryptography)
     └── adbkey/             ← auto-generated ADB key pair (git-ignored)
 ```
@@ -141,13 +146,71 @@ xiaomi-p1-setup/
 
 ## Recovery
 
-The debloat run writes a JSON snapshot to `~/.cleanyourtv/` **before** touching anything. `restore.sh` replays that snapshot exactly — packages that were already disabled before you ran this toolkit stay disabled; everything else comes back.
+The debloat run writes a JSON snapshot to `~/.xiaomi-p1-setup/` **before** touching anything. `restore.sh` replays that snapshot exactly — packages that were already disabled before you ran this toolkit stay disabled; everything else comes back.
 
 ```bash
 ./scripts/restore.sh
 ```
 
 If you lose the snapshot, restore falls back to enabling every listed package and resetting the stock launcher — safe but not perfectly surgical.
+
+---
+
+## After a Firmware Update
+
+Xiaomi OTA updates silently re-enable packages you disabled. Use `tools/check.py` to detect and fix this:
+
+```bash
+# See what the firmware update undid (exits 1 if drift found):
+tools/venv/bin/python -I tools/check.py data/packages.txt
+
+# Re-apply automatically:
+tools/venv/bin/python -I tools/check.py --fix data/packages.txt
+```
+
+> **Tip:** Run `check.py` from a scheduled task after any OTA. It exits 0 when in sync and 1 when something drifted, so it fits a cron job or a CI check.
+
+---
+
+## Auditing Your TV
+
+`tools/privacy.py` scans the live TV for voice, ACR (screen fingerprinting), and telemetry packages — including ones that are not in `packages.txt` yet:
+
+```bash
+# Print a report with evidence for each candidate:
+tools/venv/bin/python -I tools/privacy.py
+
+# Write candidates to a new debloat list:
+tools/venv/bin/python -I tools/privacy.py --write data/packages-audit.txt
+```
+
+---
+
+## Using a Coding Agent (Sandbox Support)
+
+If your coding agent runs in a sandbox that cannot reach your local network (Claude Code on macOS, Codex, etc.), use `tools/relay.py` to forward the ADB port:
+
+```bash
+# In a normal terminal — leave running:
+tools/venv/bin/python -I tools/relay.py ${TV_IP}
+
+# In the agent's sandbox:
+export TV_HOST=127.0.0.1 TV_PORT=15555
+tools/venv/bin/python -I tools/tv.py --probe
+```
+
+See [`tools/relay.md`](tools/relay.md) for full details.
+
+---
+
+## Closing ADB After Setup
+
+After turning off ADB debugging on the TV, verify port 5555 is actually closed (no `nc` needed):
+
+```bash
+tools/venv/bin/python -I tools/adb-closed.py ${TV_IP}
+# exits 0 = closed, 1 = still open, 2 = could not tell
+```
 
 ---
 

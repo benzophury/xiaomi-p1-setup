@@ -20,7 +20,7 @@ Disables bloat packages listed in data/packages.txt, applies settings from
 data/settings.txt, configures NextDNS, and optionally disables the voice
 assistant — all as defined in setup.conf.
 
-A recovery snapshot is written to ~/.cleanyourtv/ before any command reaches
+A recovery snapshot is written to ~/.xiaomi-p1-setup/ before any command reaches
 the TV. Use scripts/restore.sh to undo everything.
 
 Options:
@@ -77,7 +77,7 @@ if [[ "$DRY_RUN" == "1" ]]; then
 else
     TV_HOST="$TV_IP" TV_PORT="$TV_PORT" "$_PY" -I "$TOOLS/recovery.py" \
         --save "$DATA/packages.txt"
-    log_ok "Snapshot written to ~/.cleanyourtv/ — use scripts/restore.sh to undo"
+    log_ok "Snapshot written to ~/.xiaomi-p1-setup/ — use scripts/restore.sh to undo"
 fi
 
 # ─── Step 6: Disable packages ────────────────────────────────────────────────

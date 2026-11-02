@@ -1,0 +1,86 @@
+name: Sync launcher source
+
+# Runs daily and on demand. When cleanyourtv publishes a new release tag,
+# copies the launcher/ source tree into this repo and commits it.
+# That commit triggers the build workflow automatically.
+on:
+  schedule:
+    - cron: '0 5 * * *'   # 05:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Sync even if version matches'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    outputs:
+      synced: ${{ steps.sync.outputs.synced }}
+      tag: ${{ steps.upstream.outputs.tag }}
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latest cleanyourtv release tag
+        id: upstream
+        run: |
+          TAG=$(curl -fsSL https://api.github.com/repos/Gathin23/cleanyourtv/releases/latest \
+                | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])")
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Upstream: ${TAG}"
+
+      - name: Compare with stored version
+        id: compare
+        run: |
+          STORED=$(cat .github/launcher-version 2>/dev/null || echo "")
+          UPSTREAM="${{ steps.upstream.outputs.tag }}"
+          echo "Stored: ${STORED:-none}  Upstream: ${UPSTREAM}"
+          if [ "${{ github.event.inputs.force }}" = "true" ] || [ "$UPSTREAM" != "$STORED" ]; then
+            echo "needs_sync=true"  >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_sync=false" >> "$GITHUB_OUTPUT"
+            echo "Already at ${UPSTREAM}, nothing to do."
+          fi
+
+      - name: Checkout cleanyourtv at ${{ steps.upstream.outputs.tag }}
+        if: steps.compare.outputs.needs_sync == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: Gathin23/cleanyourtv
+          ref: ${{ steps.upstream.outputs.tag }}
+          path: _upstream
+
+      - name: Copy launcher source into this repo
+        if: steps.compare.outputs.needs_sync == 'true'
+        id: sync
+        run: |
+          TAG="${{ steps.upstream.outputs.tag }}"
+
+          # Replace launcher/ wholesale with upstream source
+          rm -rf launcher/
+          cp -r _upstream/launcher/ launcher/
+          rm -rf _upstream
+
+          # Record which upstream tag this source came from
+          echo "${TAG}" > .github/launcher-version
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add launcher/ .github/launcher-version
+
+          if git diff --cached --quiet; then
+            echo "Source identical after copy — nothing to commit."
+            echo "synced=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "launcher: sync source from cleanyourtv ${TAG}"
+            git push
+            echo "synced=true" >> "$GITHUB_OUTPUT"
+            echo "Committed and pushed cleanyourtv ${TAG} launcher source."
+          fi

@@ -160,5 +160,12 @@ if [[ "$DRY_RUN" != "1" ]]; then
     [[ -n "${PROJECTIVY_APK:-}" ]] && log_info "  • Projectivy Launcher installed"
     log_info ""
     log_info "To undo everything: ./scripts/restore.sh"
-    log_info "Recovery snapshot : ~/.cleanyourtv/"
+    log_info "Recovery snapshot : ~/.xiaomi-p1-setup/"
+    log_info ""
+    log_info "After turning off ADB on the TV, verify it is closed:"
+    log_info "  python tools/adb-closed.py ${TV_IP}"
+    log_info ""
+    log_info "After a firmware update, check for drift and re-apply:"
+    log_info "  tools/venv/bin/python -I tools/check.py data/packages.txt"
+    log_info "  tools/venv/bin/python -I tools/check.py --fix data/packages.txt"
 fi
