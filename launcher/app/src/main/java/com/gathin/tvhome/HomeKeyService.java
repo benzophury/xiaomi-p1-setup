@@ -227,6 +227,10 @@ public class HomeKeyService extends AccessibilityService {
         AccessibilityServiceInfo info = getServiceInfo();
         if (info != null && (!stockHome.isEmpty() || !powerOnLiveTv.isEmpty() || watchFront)) {
             info.eventTypes |= AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+            // setServiceInfo() rewrites flags and drops the XML's flagRequestFilterKeyEvents, so a
+            // key_filter build that also uses a window-watching redirect loses key filtering (gear/app
+            // keys stop reaching the helper). Re-assert the filter flag here when key_filter is on.
+            if (config.keyFilter) info.flags |= AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
             setServiceInfo(info);
         }
         if (!stockHome.isEmpty() || !powerOnLiveTv.isEmpty()) probeAtBoot();
@@ -368,6 +372,13 @@ public class HomeKeyService extends AccessibilityService {
 
     static boolean stillArmed(long now, long armedUntil) {
         return now < armedUntil;
+    }
+
+    /** power_on_home: a key on Home hands the TV to the user too. With key_filter false this service sees no keys,
+     *  so an input picked from the Inputs menu was sent back to Home until the window ran out. */
+    static void keyOnHome() {
+        HomeKeyService service = running;
+        if (service != null) service.powerOnUntil = 0;
     }
 
     /** The settings menu offers Restart only while this helper is bound: it opens the system power menu. */
